@@ -2,37 +2,75 @@ package gateway
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
 )
 
+// KongGateway holds the configuration and values for a pre-defined Kong API Gateway.
 type KongGateway struct {
+	// GatewayURL is the admin URL of the kong gateway. This is usually the URL (host plus port) of Kong admin
 	GatewayURL string
 	config     *MicroserviceConfig
 	client     *http.Client
 }
 
+// MicroserviceConfig represents configuration for the microservice itself.
 type MicroserviceConfig struct {
-	MicroserviceName string   `json:"name,omitempty"`
-	MicroservicePort int      `json:"port,omitempty"`
-	VirtualHost      string   `json:"virtual_host,omitempty"`
-	Hosts            []string `json:"hosts,omitempty"`
-	Weight           int      `json:"weight,omitempty"`
-	ServicesMaxSlots int      `json:"slots,omitempty"`
+
+	// MicroserviceName is the name of the microservice. This microservice will be registered on the Gateway under this name.
+	// Note that this is not the domain (host) of the microservice, but a human readable name of the microservice.
+	MicroserviceName string `json:"name,omitempty"`
+
+	// MicroservicePort is the local port on which the microservice is exposed.
+	MicroservicePort int `json:"port,omitempty"`
+
+	// VirtualHost is the domain name of the virtual host for all microservices of this name.
+	// We can have multiple instances (containers) running on a single platform. Every microservice instance must have the same
+	// virtual host name to be a part of the same cluster. For example, if you are exposing a user microservices, then a
+	// virtual host might be 'user.services.mydomain.com'. When accessing user microservices you'll call http://user.services.mydomain.com:8000/user
+	// which will redirect to a specific microservice.
+	// This is a configuration for 'upstream' in Kong Gateway.
+	VirtualHost string `json:"virtual_host,omitempty"`
+
+	// Hosts is a list of supported hosts by the microservice.
+	// When accessing the microservice, you must set the HTTP header 'Host' to a value
+	// that is listed in this list of hosts.
+	Hosts []string `json:"hosts,omitempty"`
+
+	// Weight is the weight of this particular microservice used for load ballancing by the gateway.
+	Weight int `json:"weight,omitempty"`
+
+	// ServicesMaxSlots is the maximal number of slots which the load ballancer on the gateway will
+	// allocate for the this VirtualHost.
+	ServicesMaxSlots int `json:"slots,omitempty"`
 }
 
-func NewKongGateway(adminUrl string, client *http.Client, config *MicroserviceConfig) *KongGateway {
+// NewKongGateway creates a Kong Gateway with the given admin URL of kong, an http.Client and a MicroserviceConfig.
+func NewKongGateway(adminURL string, client *http.Client, config *MicroserviceConfig) *KongGateway {
 	return &KongGateway{
-		GatewayURL: adminUrl,
+		GatewayURL: adminURL,
 		config:     config,
 		client:     client,
 	}
 }
 
-func NewKongGatewayFromConfigFile(adminUrl string, client *http.Client, configFile string) (*KongGateway, error) {
+// NewKongGatewayFromConfigFile creates a Kong Gateway for a given admin URL of kong, an http.Client and
+// a location of a JSON file with the configuration.
+// The configuration JSON has the following structure:
+// 	{
+//		"name": "The name of the service",
+//		"port": 8080, // the local microservice port
+//		"virtual_host": "Microservices upstream virtual host",
+// 		"hosts": ["localhost", "example.org"] // valid HTTP Host header values for this microservice
+// 		"weight": 10, // microservice instance weight used for load ballancing
+// 		"slots": 100 // maximal number of slots to allocate for this microservices group
+// }
+func NewKongGatewayFromConfigFile(adminURL string, client *http.Client, configFile string) (*KongGateway, error) {
 	var config MicroserviceConfig
 	cnf, err := ioutil.ReadFile(configFile)
 	if err != nil {
@@ -43,9 +81,16 @@ func NewKongGatewayFromConfigFile(adminUrl string, client *http.Client, configFi
 		return nil, err
 	}
 
-	return NewKongGateway(adminUrl, client, &config), nil
+	return NewKongGateway(adminURL, client, &config), nil
 }
 
+// SelfRegister performs a self registration of the microservice with a Kong Gateway.
+// It performs the following tasks:
+// 1. Checks for existence of 'upstream' for the microservices group. If there is no 'upstream'
+// configured, it creates a new one with the given configuration.
+// 2. Checks for the existince of API for the microservices group. If there is no API
+// created on Kong, it creates a new one with the given configuration.
+// 3. Adds new target on kong for the configured 'upstream' and 'API'.
 func (kong *KongGateway) SelfRegister() error {
 	err := kong.createOrUpdateUpstream(kong.config.VirtualHost, kong.config.ServicesMaxSlots)
 	if err != nil {
@@ -67,11 +112,15 @@ func (kong *KongGateway) SelfRegister() error {
 	return err
 }
 
+// Unregister unregisters this instance of the microservice from the Kong Gateway.
+// Basically it updates the upstream target with weight 0, which disables the target.
 func (kong *KongGateway) Unregister() error {
 	_, err := kong.addSelfAsTarget(kong.config.VirtualHost, kong.config.MicroservicePort, 0)
 	return err
 }
 
+// upstream is internally used structure that represents Kong's 'upstream' object.
+// See https://getkong.org/docs/0.10.x/admin-api/#upstream-object
 type upstream struct {
 	ID        string `json:"id,omitempty"`
 	Name      string `json:"name,omitempty"`
@@ -80,6 +129,8 @@ type upstream struct {
 	CreatedAt int    `json:"created_at,omitempty"`
 }
 
+// upstreamTarget is internally used structure that represents Kong's 'upstream-target' object.
+// See https://getkong.org/docs/0.10.x/admin-api/#target-object
 type upstreamTarget struct {
 	ID         string `json:"id,omitempty"`
 	Target     string `json:"target,omitempty"`
@@ -88,6 +139,8 @@ type upstreamTarget struct {
 	CreatedAt  int    `json:"created_at,omitempty"`
 }
 
+// API is a structure that represents Kong's API object.
+// See https://getkong.org/docs/0.10.x/admin-api/#api-object
 type API struct {
 	ID                     string   `json:"id,omitempty"`
 	CreatedAt              int      `json:"created_at,omitempty"`
@@ -106,6 +159,7 @@ type API struct {
 	UpstreamURL            string   `json:"upstream_url,omitempty"`
 }
 
+// NewAPIConf creates new API object with sensible defaults.
 func NewAPIConf() *API {
 	api := API{
 		Hosts:                  []string{},
@@ -123,18 +177,50 @@ func NewAPIConf() *API {
 	return &api
 }
 
+// AddHost adds a new host to the API configuration structure.
 func (api *API) AddHost(host string) {
 	api.Hosts = append(api.Hosts, host)
 }
 
-func getServiceIP() (string, error) {
-	return "0.0.0.0", nil
+// GetServiceIP returns the valid IP of the microservice container.
+func GetServiceIP() (string, error) {
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		return "", err
+	}
+
+	for _, iface := range ifaces {
+		addrs, err := iface.Addrs()
+		if err != nil {
+			return "", nil
+		}
+		for _, addr := range addrs {
+			var ip net.IP
+
+			switch v := addr.(type) {
+			case *net.IPNet:
+				ip = v.IP
+			case *net.IPAddr:
+				ip = v.IP
+			}
+
+			if ip.String() != "127.0.0.1" && ip.String() != "::1" {
+				return ip.String(), nil
+			}
+		}
+
+	}
+
+	return "", errors.New("IP not found")
 }
 
+// getKongURL returns a full URL to the desired 'path' on the Kong Gateway.
 func (kong *KongGateway) getKongURL(path string) string {
 	return fmt.Sprintf("%s/%s", kong.GatewayURL, path)
 }
 
+// getUpstreamObj call the 'upstream' API on Kong and retrieves an upstream object with the given name.
+// Returns the upstream object if found, or nil if there is no upstream with that name.
 func (kong *KongGateway) getUpstreamObj(name string) (*upstream, error) {
 	var upstreamObj upstream
 	resp, err := kong.client.Get(kong.getKongURL(fmt.Sprintf("upstreams/%s", name)))
@@ -152,6 +238,7 @@ func (kong *KongGateway) getUpstreamObj(name string) (*upstream, error) {
 	return &upstreamObj, nil
 }
 
+// createUpstreamObj creates new upstream object on Kong.
 func (kong *KongGateway) createUpstreamObj(name string, slots int) (*upstream, error) {
 	var upstreamObj upstream
 	form := url.Values{}
@@ -169,6 +256,7 @@ func (kong *KongGateway) createUpstreamObj(name string, slots int) (*upstream, e
 	return &upstreamObj, nil
 }
 
+// createOrUpdateUpstream creates a new upstream object on Kong if it doesn't exist.
 func (kong *KongGateway) createOrUpdateUpstream(name string, slots int) error {
 	up, err := kong.getUpstreamObj(name)
 	if err != nil {
@@ -182,6 +270,7 @@ func (kong *KongGateway) createOrUpdateUpstream(name string, slots int) error {
 	return nil
 }
 
+// createKongAPI creates new API object on Kong.
 func (kong *KongGateway) createKongAPI(apiConf *API) (*API, error) {
 	var result API
 	form := url.Values{}
@@ -231,6 +320,8 @@ func (kong *KongGateway) createKongAPI(apiConf *API) (*API, error) {
 	return &result, nil
 }
 
+// getAPI retrieves the API object from Kong with the given name.
+// Returns the API object if found, or nil if no such object exists on Kong.
 func (kong *KongGateway) getAPI(name string) (*API, error) {
 	resp, err := kong.client.Get(kong.getKongURL(fmt.Sprintf("apis/%s", name)))
 	if err != nil {
@@ -248,6 +339,8 @@ func (kong *KongGateway) getAPI(name string) (*API, error) {
 	return &api, nil
 }
 
+// createOrUpdateAPI creates a new API object if it doesn't exist on Kong.
+// Returns the created (or existing) object from Kong.
 func (kong *KongGateway) createOrUpdateAPI(apiConf *API) (*API, error) {
 	api, err := kong.getAPI(apiConf.Name)
 	if err != nil {
@@ -262,10 +355,11 @@ func (kong *KongGateway) createOrUpdateAPI(apiConf *API) (*API, error) {
 	return api, nil
 }
 
+// addSelfAsTarget crates a new target object on kong for this specific service with the upstream and weight.
 func (kong *KongGateway) addSelfAsTarget(upstream string, port int, weight int) (*upstreamTarget, error) {
 	var target upstreamTarget
 
-	ip, err := getServiceIP()
+	ip, err := GetServiceIP()
 	if err != nil {
 		return nil, err
 	}

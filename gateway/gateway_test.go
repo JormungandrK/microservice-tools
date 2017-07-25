@@ -510,3 +510,63 @@ func TestNewKongGatewayFromConfigFile(t *testing.T) {
 		panic("Wrong API Gateway URL")
 	}
 }
+
+func TestGetServiceIP(t *testing.T) {
+	ip, err := GetServiceIP()
+	if err != nil {
+		panic(err)
+	}
+
+	if ip == "" {
+		panic("IP not found")
+	}
+
+	t.Logf("Service IP: %s", ip)
+}
+
+func TestUnregister(t *testing.T) {
+	client := &http.Client{}
+
+	defer gock.Off()
+
+	gock.New("http://kong:8001").
+		Post("/upstreams/user.api.jormugandr.org/targets").
+		SetMatcher(NewFormMatcher().
+			FormParamPattern("target", "\\d+\\.\\d+\\.\\d+\\.\\d+:\\d+").
+			FormParam("weight", "0").
+			Matcher).
+		Reply(200).
+		JSON(map[string]interface{}{
+			"id":          "4661f55e-95c2-4011-8fd6-c5c56df1c9db",
+			"target":      "1.2.3.4:80",
+			"weight":      10,
+			"upstream_id": "ee3310c1-6789-40ac-9386-f79c0cb58432",
+			"created_at":  1485523507446,
+		})
+
+	gock.InterceptClient(client)
+
+	config := &MicroserviceConfig{
+		MicroserviceName: "user-microservice",
+		MicroservicePort: 8080,
+		ServicesMaxSlots: 10,
+		VirtualHost:      "user.api.jormugandr.org",
+		Weight:           10,
+		Hosts:            []string{"localhost", "user.api.jormugandr.org"},
+	}
+	gateway := NewKongGateway("http://kong:8001", client, config)
+
+	err := gateway.Unregister()
+	if err != nil {
+		panic(err)
+	}
+
+	if gock.IsPending() {
+		all := gock.GetAll()
+		for _, mock := range all {
+			t.Error("Mock:", mock.Request())
+		}
+
+		panic(fmt.Sprintf("Expected an HTTP call to upstream/{}/targets"))
+	}
+}
