@@ -52,21 +52,21 @@ func main(){
   gatewayURL, configFile := loadGatewaySettings()
 
   // creates new Kong gateway.Registration with the config settings. We pass the default http client here.
-	registration, err := gateway.NewKongGatewayFromConfigFile(gatewayURL, &http.Client{}, configFile)
-	if err != nil {
+  registration, err := gateway.NewKongGatewayFromConfigFile(gatewayURL, &http.Client{}, configFile)
+  if err != nil {
     // if there is an error, it means we failed to build Registration for Kong.
-		panic(err)
-	}
+    panic(err)
+  }
   // at this point we do a self-registration by calling SelfRegister
-	err = registration.SelfRegister()
-	if err != nil {
+  err = registration.SelfRegister()
+  if err != nil {
     // if there is an error it means we failed to self-register so we panic with error
-		panic(err)
-	}
+    panic(err)
+  }
 
   // the unregistration is deferred for after main() executes. If we shut down
   // the service, it is nice to unregister, although it is not required.
-	defer registration.Unregister()
+  defer registration.Unregister()
 
 
   // rest of the code for main goes here
@@ -74,16 +74,16 @@ func main(){
 
 // loadGatewaySettings loads the API Gateway URL and the path to the JSON config file from ENV variables.
 func loadGatewaySettings() (string, string) {
-	gatewayURL := os.Getenv("API_GATEWAY_URL")
-	serviceConfigFile := os.Getenv("SERVICE_CONFIG_FILE")
+  gatewayURL := os.Getenv("API_GATEWAY_URL")
+  serviceConfigFile := os.Getenv("SERVICE_CONFIG_FILE")
 
-	if gatewayURL == "" {
-		gatewayURL = "http://localhost:8001"
-	}
-	if serviceConfigFile == "" {
-		serviceConfigFile = "config.json"
-	}
+  if gatewayURL == "" {
+    gatewayURL = "http://localhost:8001"
+  }
+  if serviceConfigFile == "" {
+    serviceConfigFile = "config.json"
+  }
 
-	return gatewayURL, serviceConfigFile
+  return gatewayURL, serviceConfigFile
 }
 ```
