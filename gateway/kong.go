@@ -16,13 +16,12 @@ type KongGateway struct {
 }
 
 type MicroserviceConfig struct {
-	MicroserviceName string
-	MicroservicePort int
-	VirtualHost      string
-	Hosts            []string
-	Weight           int
-	ServicesMaxSlots int
-	UpstreamURL      string
+	MicroserviceName string   `json:"name,omitempty"`
+	MicroservicePort int      `json:"port,omitempty"`
+	VirtualHost      string   `json:"virtual_host,omitempty"`
+	Hosts            []string `json:"hosts,omitempty"`
+	Weight           int      `json:"weight,omitempty"`
+	ServicesMaxSlots int      `json:"slots,omitempty"`
 }
 
 func NewKongGateway(adminUrl string, client *http.Client, config *MicroserviceConfig) *KongGateway {
@@ -57,7 +56,7 @@ func (kong *KongGateway) SelfRegister() error {
 	// TODO: map here from config
 	apiConf.Name = kong.config.MicroserviceName
 	apiConf.Hosts = kong.config.Hosts
-	apiConf.UpstreamURL = kong.config.UpstreamURL
+	apiConf.UpstreamURL = fmt.Sprintf("http://%s:%d", kong.config.VirtualHost, kong.config.MicroservicePort)
 
 	_, err = kong.createOrUpdateAPI(apiConf)
 	if err != nil {
@@ -129,7 +128,7 @@ func (api *API) AddHost(host string) {
 }
 
 func getServiceIP() (string, error) {
-	return "", nil
+	return "0.0.0.0", nil
 }
 
 func (kong *KongGateway) getKongURL(path string) string {
@@ -141,6 +140,10 @@ func (kong *KongGateway) getUpstreamObj(name string) (*upstream, error) {
 	resp, err := kong.client.Get(kong.getKongURL(fmt.Sprintf("upstreams/%s", name)))
 	if err != nil {
 		return nil, err
+	}
+
+	if resp.StatusCode == 404 {
+		return nil, nil
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&upstreamObj); err != nil {
@@ -156,7 +159,7 @@ func (kong *KongGateway) createUpstreamObj(name string, slots int) (*upstream, e
 	form.Add("name", name)
 	form.Add("slots", fmt.Sprintf("%d", slots))
 
-	resp, err := kong.client.Post(kong.getKongURL("upstreams/"), "multipart/form-data", strings.NewReader(form.Encode()))
+	resp, err := kong.client.Post(kong.getKongURL("upstreams/"), "application/x-www-form-urlencoded", strings.NewReader(form.Encode()))
 	if err != nil {
 		return nil, err
 	}
@@ -213,7 +216,7 @@ func (kong *KongGateway) createKongAPI(apiConf *API) (*API, error) {
 	form.Add("https_only", fmt.Sprintf("%t", apiConf.HTTPSOnly))
 	form.Add("http_if_terminated", fmt.Sprintf("%t", apiConf.HTTPIfTerminated))
 
-	resp, err := kong.client.Post(kong.getKongURL("apis/"), "", strings.NewReader(form.Encode()))
+	resp, err := kong.client.Post(kong.getKongURL("apis/"), "application/x-www-form-urlencoded", strings.NewReader(form.Encode()))
 	if err != nil {
 		return nil, err
 	}
@@ -233,6 +236,11 @@ func (kong *KongGateway) getAPI(name string) (*API, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	if resp.StatusCode == 404 {
+		return nil, nil
+	}
+
 	var api API
 	if err := json.NewDecoder(resp.Body).Decode(&api); err != nil {
 		return nil, err
@@ -266,7 +274,7 @@ func (kong *KongGateway) addSelfAsTarget(upstream string, port int, weight int) 
 	form.Add("target", fmt.Sprintf("%s:%d", ip, port))
 	form.Add("weight", fmt.Sprintf("%d", weight))
 
-	resp, err := kong.client.Post(kong.getKongURL(fmt.Sprintf("upstreams/%s/targets", upstream)), "multipart/form-data", strings.NewReader(form.Encode()))
+	resp, err := kong.client.Post(kong.getKongURL(fmt.Sprintf("upstreams/%s/targets", upstream)), "application/x-www-form-urlencoded", strings.NewReader(form.Encode()))
 
 	if err != nil {
 		return nil, err
