@@ -12,7 +12,7 @@ This package provides tools that can be used by all microservices, such as:
 The service configuration is loaded from a JSON config file. The file has the following
 structure:
 
-```!javascript
+```javascript
 {
   "name": "user-microservice",
   "port": 8080,
@@ -37,7 +37,7 @@ Fields:
 To add self-registration logic in your microservice, you need to create a ```gateway.Registration``` and then use ```SelfRegister()```.
 
 Here is an example of self-registration with Kong:
-```!go
+```go
 import (
   // other imports here
 
