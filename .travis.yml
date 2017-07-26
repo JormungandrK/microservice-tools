@@ -23,4 +23,5 @@ before_script:
 
 script:
   - kcov /tmp/kcov go test -v microservice-tools/gateway
-  - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter format-coverage --input-type cobertura /tmp/kcov/unitTest.sh/cobertura.xml && ./cc-test-reporter upload-coverage; fi
+  - ls -la /tmp/kcov
+  - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter format-coverage --input-type cobertura /tmp/kcov/go/cobertura.xml && ./cc-test-reporter upload-coverage; fi
