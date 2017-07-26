@@ -6,7 +6,7 @@ env:
 language: go
 
 go:
-  -1.8.x
+  - 1.8.x
 
 before_install:
 #  - sudo apt-get -qq update
@@ -24,7 +24,7 @@ before_script:
   - chmod +x ./cc-test-reporter
 
 script:
-  - gocov test microservice-tools/gateway | gocov-xml > /tmp/coverage.xml
+  - gocov test github.com/JormungandrK/microservice-tools/gateway | gocov-xml > /tmp/coverage.xml
 #  - go test -v ./gateway
 #  - ls -la /tmp/kcov
   - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter format-coverage --input-type cobertura /tmp/coverage.xml && ./cc-test-reporter upload-coverage; fi
