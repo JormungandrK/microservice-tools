@@ -1,0 +1,26 @@
+env:
+  global:
+    - CC_TEST_REPORTER_ID=76d39151044b1db7f724abf58fca2fc0ffc0193d2432bceaea74f3ae456a18a1
+    - GIT_COMMITTED_AT=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git log -1 --pretty=format:%ct; else git log -1 --skip 1 --pretty=format:%ct; fi)
+
+language: go
+
+go:
+  -1.8.x
+
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y binutils-dev libcurl4-openssl-dev zlib1g-dev libdw-dev
+  - git clone --depth=50 --branch=v33 https://github.com/SimonKagstrom/kcov.git
+  - cmake kcov && make && sudo make install
+
+install:
+  - go get -u gopkg.in/h2non/gock.v1
+
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+
+script:
+  - kcov go test -v microservice-tools/gateway
+  - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then cd .. && ./cc-test-reporter format-coverage --input-type cobertura /tmp/kcov/unitTest.sh/cobertura.xml && ./cc-test-reporter upload-coverage; fi
