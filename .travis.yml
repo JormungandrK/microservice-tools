@@ -22,6 +22,7 @@ before_script:
   - chmod +x ./cc-test-reporter
 
 script:
-  - kcov /tmp/kcov go test -v microservice-tools/gateway
-  - ls -la /tmp/kcov
+  - kcov /tmp/kcov go test -v ./gateway
+#  - go test -v ./gateway
+#  - ls -la /tmp/kcov
   - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter format-coverage --input-type cobertura /tmp/kcov/go/cobertura.xml && ./cc-test-reporter upload-coverage; fi
