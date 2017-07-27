@@ -1,0 +1,30 @@
+env:
+  global:
+    - CC_TEST_REPORTER_ID=76d39151044b1db7f724abf58fca2fc0ffc0193d2432bceaea74f3ae456a18a1
+    - GIT_COMMITTED_AT=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git log -1 --pretty=format:%ct; else git log -1 --skip 1 --pretty=format:%ct; fi)
+
+language: go
+
+go:
+  - 1.8.x
+
+before_install:
+#  - sudo apt-get -qq update
+#  - sudo apt-get install -y binutils-dev libcurl4-openssl-dev zlib1g-dev libdw-dev
+#  - git clone --depth=50 --branch=v33 https://github.com/SimonKagstrom/kcov.git
+#  - cmake kcov && make && sudo make install
+  - go get github.com/axw/gocov/gocov
+  - go get github.com/AlekSi/gocov-xml
+
+install:
+  - go get -u gopkg.in/h2non/gock.v1
+
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+
+script:
+  - gocov test github.com/JormungandrK/microservice-tools/gateway | gocov-xml > coverage.xml
+#  - go test -v ./gateway
+#  - ls -la /tmp/kcov
+  - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter after-build; fi
