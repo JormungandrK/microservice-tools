@@ -4,6 +4,25 @@ Package with shared tools for the microservices
 This package provides tools that can be used by all microservices, such as:
  * API for service registry (Self registration and unregistration of a microservice)
 
+# Installation
+
+To install run:
+```bash
+go get -u github.com/JormungandrK/microservice-tools
+```
+
+## Install it from the private repository
+
+You'll might get a problem when installing because the github repository is private.
+
+By default ```go get``` will try to user a https:// to clone the repository.
+If you have a valid key for accessing the repository (in ```~/.ssh/```) run the
+following command to force git to use ssh:// as protocol for access and to use
+your access key for the repository:
+
+```bash
+git config --global url."ssh://git@github.com:".insteadOf "https://github.com"
+```
 
 # Microservice self-registration
 
