@@ -309,6 +309,27 @@ func TestSelfRegisterNoUpstream(t *testing.T) {
 			"upstream_send_timeout":    60000,
 			"upstream_url":             "http://user.api.jormugandr.org:8080",
 		})
+	gock.New("http://kong:8001").
+		Patch("/apis/6378122c-a0a1-438d-a5c6-efabae9fb969").
+		Reply(200).
+		JSON(map[string]interface{}{
+			"created_at": 1488830759000,
+			"hosts": []string{
+				"localhost",
+				"user.api.jormugandr.org",
+			},
+			"http_if_terminated":       true,
+			"https_only":               false,
+			"id":                       "6378122c-a0a1-438d-a5c6-efabae9fb969",
+			"name":                     "user-microservice",
+			"preserve_host":            false,
+			"retries":                  5,
+			"strip_uri":                true,
+			"upstream_connect_timeout": 60000,
+			"upstream_read_timeout":    60000,
+			"upstream_send_timeout":    60000,
+			"upstream_url":             "http://user.api.jormugandr.org:8080",
+		})
 
 	gock.New("http://kong:8001").
 		Post("/upstreams/").
@@ -407,6 +428,27 @@ func TestSelfRegisterWithAPIAndUpstream(t *testing.T) {
 
 	gock.New("http://kong:8001").
 		Get("/apis/user-microservice").
+		Reply(200).
+		JSON(map[string]interface{}{
+			"created_at": 1488830759000,
+			"hosts": []string{
+				"localhost",
+				"user.api.jormugandr.org",
+			},
+			"http_if_terminated":       true,
+			"https_only":               false,
+			"id":                       "6378122c-a0a1-438d-a5c6-efabae9fb969",
+			"name":                     "user-microservice",
+			"preserve_host":            false,
+			"retries":                  5,
+			"strip_uri":                true,
+			"upstream_connect_timeout": 60000,
+			"upstream_read_timeout":    60000,
+			"upstream_send_timeout":    60000,
+			"upstream_url":             "http://user.api.jormugandr.org:8080",
+		})
+	gock.New("http://kong:8001").
+		Patch("/apis/6378122c-a0a1-438d-a5c6-efabae9fb969").
 		Reply(200).
 		JSON(map[string]interface{}{
 			"created_at": 1488830759000,

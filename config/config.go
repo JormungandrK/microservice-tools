@@ -9,7 +9,7 @@ import (
 
 type ServiceConfig struct {
 	Service        *gateway.MicroserviceConfig `json:"service"`
-	SecurityConfig `json:"securityConfig, omitempty"`
+	SecurityConfig `json:"security, omitempty"`
 	DBConfig       `json:"database"`
 	GatewayURL     string `json:"gatewayUrl"`
 }
