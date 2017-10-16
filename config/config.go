@@ -7,11 +7,19 @@ import (
 	"github.com/JormungandrK/microservice-tools/gateway"
 )
 
+// ServiceConfig holds the full microservice configuration:
+// - Configuration for registering on the API Gateway
+// - Security configuration
+// - Database configuration
 type ServiceConfig struct {
-	Service        *gateway.MicroserviceConfig `json:"service"`
+	// Service holds the confgiuration for connecting and registering the service with the API Gateway
+	Service *gateway.MicroserviceConfig `json:"service"`
+	// SecurityConfig holds the security configuration
 	SecurityConfig `json:"security, omitempty"`
-	DBConfig       `json:"database"`
-	GatewayURL     string `json:"gatewayUrl"`
+	// DBConfig holds the database connection configuration
+	DBConfig `json:"database"`
+	// GatewayURL is the URL of the API Gateway
+	GatewayURL string `json:"gatewayUrl"`
 }
 
 // DBConfig holds the database configuration parameters.
@@ -30,6 +38,7 @@ type DBConfig struct {
 	DatabaseName string `json:"database,omitempty"`
 }
 
+// LoadConfig loads the service configuration from a file.
 func LoadConfig(confFile string) (*ServiceConfig, error) {
 	data, err := ioutil.ReadFile(confFile)
 	if err != nil {
