@@ -37,6 +37,8 @@ type MicroserviceConfig struct {
 	// This is a configuration for 'upstream' in Kong Gateway.
 	VirtualHost string `json:"virtual_host,omitempty"`
 
+	Paths []string `json:"paths,omitempty"`
+
 	// Hosts is a list of supported hosts by the microservice.
 	// When accessing the microservice, you must set the HTTP header 'Host' to a value
 	// that is listed in this list of hosts.
@@ -102,7 +104,7 @@ func (kong *KongGateway) SelfRegister() error {
 	apiConf.Name = kong.config.MicroserviceName
 	apiConf.Hosts = kong.config.Hosts
 	apiConf.UpstreamURL = fmt.Sprintf("http://%s:%d", kong.config.VirtualHost, kong.config.MicroservicePort)
-
+	apiConf.URIs = kong.config.Paths
 	_, err = kong.createOrUpdateAPI(apiConf)
 	if err != nil {
 		return err
@@ -271,7 +273,7 @@ func (kong *KongGateway) createOrUpdateUpstream(name string, slots int) error {
 }
 
 // createKongAPI creates new API object on Kong.
-func (kong *KongGateway) createKongAPI(apiConf *API) (*API, error) {
+func (kong *KongGateway) createOrUpdateKongAPI(apiConf *API) (*API, error) {
 	var result API
 	form := url.Values{}
 
@@ -304,10 +306,25 @@ func (kong *KongGateway) createKongAPI(apiConf *API) (*API, error) {
 	form.Add("preserve_host", fmt.Sprintf("%t", apiConf.PreserveHost))
 	form.Add("https_only", fmt.Sprintf("%t", apiConf.HTTPSOnly))
 	form.Add("http_if_terminated", fmt.Sprintf("%t", apiConf.HTTPIfTerminated))
-
-	resp, err := kong.client.Post(kong.getKongURL("apis/"), "application/x-www-form-urlencoded", strings.NewReader(form.Encode()))
-	if err != nil {
-		return nil, err
+	var resp *http.Response
+	var err error
+	if apiConf.ID == "" {
+		// Create API
+		resp, err = kong.client.Post(kong.getKongURL("apis/"), "application/x-www-form-urlencoded", strings.NewReader(form.Encode()))
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// Update API
+		req, err := http.NewRequest("PATCH", kong.getKongURL(fmt.Sprintf("apis/%s", apiConf.ID)), strings.NewReader(form.Encode()))
+		if err != nil {
+			return nil, err
+		}
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		resp, err = kong.client.Do(req)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
@@ -323,6 +340,9 @@ func (kong *KongGateway) createKongAPI(apiConf *API) (*API, error) {
 // getAPI retrieves the API object from Kong with the given name.
 // Returns the API object if found, or nil if no such object exists on Kong.
 func (kong *KongGateway) getAPI(name string) (*API, error) {
+	if name == "" {
+		return nil, fmt.Errorf("name is empty")
+	}
 	resp, err := kong.client.Get(kong.getKongURL(fmt.Sprintf("apis/%s", name)))
 	if err != nil {
 		return nil, err
@@ -346,13 +366,11 @@ func (kong *KongGateway) createOrUpdateAPI(apiConf *API) (*API, error) {
 	if err != nil {
 		return nil, err
 	}
-	if api == nil {
-		api, err = kong.createKongAPI(apiConf)
-		if err != nil {
-			return nil, err
-		}
+	if api != nil {
+		apiConf.ID = api.ID
 	}
-	return api, nil
+	api, err = kong.createOrUpdateKongAPI(apiConf)
+	return api, err
 }
 
 // addSelfAsTarget crates a new target object on kong for this specific service with the upstream and weight.
