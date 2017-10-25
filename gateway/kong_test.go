@@ -98,7 +98,7 @@ func TestSelfRegisterNoUpstreamNoAPI(t *testing.T) {
 			FormParam("name", "user-microservice").
 			FormParam("hosts", "localhost,user.api.jormugandr.org").
 			FormParam("upstream_url", "http://user.api.jormugandr.org:8080").
-			FormParam("strip_uri", "true").
+			FormParam("strip_uri", "false").
 			FormParam("preserve_host", "false").
 			FormParam("retries", "5").
 			FormParam("upstream_connect_timeout", "60000").
@@ -120,7 +120,7 @@ func TestSelfRegisterNoUpstreamNoAPI(t *testing.T) {
 			"name":                     "user-microservice",
 			"preserve_host":            false,
 			"retries":                  5,
-			"strip_uri":                true,
+			"strip_uri":                false,
 			"upstream_connect_timeout": 60000,
 			"upstream_read_timeout":    60000,
 			"upstream_send_timeout":    60000,
@@ -207,7 +207,7 @@ func TestSelfRegisterNoAPI(t *testing.T) {
 			FormParam("name", "user-microservice").
 			FormParam("hosts", "localhost,user.api.jormugandr.org").
 			FormParam("upstream_url", "http://user.api.jormugandr.org:8080").
-			FormParam("strip_uri", "true").
+			FormParam("strip_uri", "false").
 			FormParam("preserve_host", "false").
 			FormParam("retries", "5").
 			FormParam("upstream_connect_timeout", "60000").
@@ -229,7 +229,7 @@ func TestSelfRegisterNoAPI(t *testing.T) {
 			"name":                     "user-microservice",
 			"preserve_host":            false,
 			"retries":                  5,
-			"strip_uri":                true,
+			"strip_uri":                false,
 			"upstream_connect_timeout": 60000,
 			"upstream_read_timeout":    60000,
 			"upstream_send_timeout":    60000,
@@ -303,7 +303,7 @@ func TestSelfRegisterNoUpstream(t *testing.T) {
 			"name":                     "user-microservice",
 			"preserve_host":            false,
 			"retries":                  5,
-			"strip_uri":                true,
+			"strip_uri":                false,
 			"upstream_connect_timeout": 60000,
 			"upstream_read_timeout":    60000,
 			"upstream_send_timeout":    60000,
@@ -324,7 +324,7 @@ func TestSelfRegisterNoUpstream(t *testing.T) {
 			"name":                     "user-microservice",
 			"preserve_host":            false,
 			"retries":                  5,
-			"strip_uri":                true,
+			"strip_uri":                false,
 			"upstream_connect_timeout": 60000,
 			"upstream_read_timeout":    60000,
 			"upstream_send_timeout":    60000,
@@ -441,7 +441,7 @@ func TestSelfRegisterWithAPIAndUpstream(t *testing.T) {
 			"name":                     "user-microservice",
 			"preserve_host":            false,
 			"retries":                  5,
-			"strip_uri":                true,
+			"strip_uri":                false,
 			"upstream_connect_timeout": 60000,
 			"upstream_read_timeout":    60000,
 			"upstream_send_timeout":    60000,
@@ -462,7 +462,7 @@ func TestSelfRegisterWithAPIAndUpstream(t *testing.T) {
 			"name":                     "user-microservice",
 			"preserve_host":            false,
 			"retries":                  5,
-			"strip_uri":                true,
+			"strip_uri":                false,
 			"upstream_connect_timeout": 60000,
 			"upstream_read_timeout":    60000,
 			"upstream_send_timeout":    60000,
