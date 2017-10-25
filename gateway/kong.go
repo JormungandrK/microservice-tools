@@ -171,7 +171,7 @@ func NewAPIConf() *API {
 		HTTPSOnly:              false,
 		PreserveHost:           false,
 		Retries:                5,
-		StripURI:               true,
+		StripURI:               false,
 		UpstreamConnectTimeout: 60000,
 		UpstreamReadTimeout:    60000,
 		UpstreamSendTimeout:    60000,
