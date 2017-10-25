@@ -20,6 +20,9 @@ type ServiceConfig struct {
 	DBConfig `json:"database"`
 	// GatewayURL is the URL of the API Gateway
 	GatewayURL string `json:"gatewayUrl"`
+	// GatewayAdminURL is the administration URL of the API Gateway. Used for purposes of registration of a
+	// microservice with the API gateway.
+	GatewayAdminURL string `json:"gatewayAdminUrl"`
 }
 
 // DBConfig holds the database configuration parameters.
