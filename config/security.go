@@ -54,6 +54,9 @@ type SAMLConfig struct {
 
 	// RegistrationServiceURL is the URL of the registration service. This should be the public registration URL (usually over the Gateway).
 	RegistrationServiceURL string `json:"registrationServiceUrl"`
+
+	// RootURL is the base URL of the microservice
+	RootURL string `json:"rootURL"`
 }
 
 // OAuth2Config holds the OAuth2 configuration.
