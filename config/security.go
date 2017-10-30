@@ -5,6 +5,8 @@ package config
 // subsection is ommited, then the appropriate security will not be
 // configured and used by the security chain.
 type SecurityConfig struct {
+	// Disable flags signals whether to disable the security completely.
+	Disable bool
 
 	// KeysDir is the loacation of the directory holding the private-public key pairs.
 	KeysDir string `json:"keysDir"`
@@ -17,6 +19,9 @@ type SecurityConfig struct {
 
 	//OAuth2Config holds the OAuth2 configuration. If ommited the OAuth2 security will not be used.
 	*OAuth2Config `json:"oauth2,omitempty"`
+
+	// ACL Middleware configuration
+	*ACLConfig `json:"acl,omitempty"`
 }
 
 // JWTConfig holds the JWT configuration.
@@ -62,4 +67,38 @@ type OAuth2Config struct {
 
 	// Description is the description of the middleware. Used for documentation purposes.
 	Description string `json:"description"`
+}
+
+// ACLConfig holds the ACL middleware configuration.
+type ACLConfig struct {
+
+	// Disable signals whether to disable the ACL check.
+	Disable bool `json:"disable"`
+
+	// Policies is the list of default policies.
+	Policies []ACLPolicy `json:"policies,omitempty"`
+}
+
+// ACLPolicy represents an ACL policy
+type ACLPolicy struct {
+	// The ID of the policy document
+	ID string `json:"id" bson:"id"`
+
+	// Description is the human readable description of the document.
+	Description string `json:"description" bson:"description"`
+
+	// List of subjects (may be patterns) to which this policy applies.
+	Subjects []string `json:"subjects" bson:"subjects"`
+
+	// Effect is the effect of this policy if applied to the requested resource. May be "allow" or "deny".
+	Effect string `json:"effect" bson:"effect"`
+
+	// Resources is a list of resources (may be patterns) to which this policy applies.
+	Resources []string `json:"resources" bson:"resources"`
+
+	// Actions is a list of actions (may be patterns) to which this policy applies.
+	Actions []string `json:"actions" bson:"actions"`
+
+	// Conditions additional ACL policy conditions.
+	Conditions map[string]interface{} `json:"conditions,omitempty"`
 }
