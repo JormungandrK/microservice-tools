@@ -252,6 +252,11 @@ func (kong *KongGateway) createUpstreamObj(name string, slots int) (*upstream, e
 	if err != nil {
 		return nil, err
 	}
+
+	if resp.StatusCode != 201 {
+		return nil, fmt.Errorf(resp.Status)
+	}
+
 	if err := json.NewDecoder(resp.Body).Decode(&upstreamObj); err != nil {
 		return nil, err
 	}
@@ -325,6 +330,9 @@ func (kong *KongGateway) createOrUpdateKongAPI(apiConf *API) (*API, error) {
 		if err != nil {
 			return nil, err
 		}
+		if resp.StatusCode != 200 {
+			return nil, fmt.Errorf(resp.Status)
+		}
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
@@ -390,6 +398,9 @@ func (kong *KongGateway) addSelfAsTarget(upstream string, port int, weight int) 
 
 	if err != nil {
 		return nil, err
+	}
+	if resp.StatusCode != 201 {
+		return nil, fmt.Errorf(resp.Status)
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&target); err != nil {

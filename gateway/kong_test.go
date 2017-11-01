@@ -72,7 +72,7 @@ func TestSelfRegisterNoUpstreamNoAPI(t *testing.T) {
 			FormParam("name", "user.api.jormugandr.org").
 			FormParam("slots", "10").
 			Matcher).
-		Reply(200).
+		Reply(201).
 		JSON(map[string]interface{}{
 			"id":   "13611da7-703f-44f8-b790-fc1e7bf51b3e",
 			"name": "user.api.jormugandr.org",
@@ -107,7 +107,7 @@ func TestSelfRegisterNoUpstreamNoAPI(t *testing.T) {
 			FormParam("https_only", "false").
 			FormParam("http_if_terminated", "true").
 			Matcher).
-		Reply(200).
+		Reply(201).
 		JSON(map[string]interface{}{
 			"created_at": 1488830759000,
 			"hosts": []string{
@@ -133,7 +133,7 @@ func TestSelfRegisterNoUpstreamNoAPI(t *testing.T) {
 			FormParamPattern("target", "\\d+\\.\\d+\\.\\d+\\.\\d+:\\d+").
 			FormParam("weight", "10").
 			Matcher).
-		Reply(200).
+		Reply(201).
 		JSON(map[string]interface{}{
 			"id":          "4661f55e-95c2-4011-8fd6-c5c56df1c9db",
 			"target":      "1.2.3.4:80",
@@ -242,7 +242,7 @@ func TestSelfRegisterNoAPI(t *testing.T) {
 			FormParamPattern("target", "\\d+\\.\\d+\\.\\d+\\.\\d+:\\d+").
 			FormParam("weight", "10").
 			Matcher).
-		Reply(200).
+		Reply(201).
 		JSON(map[string]interface{}{
 			"id":          "4661f55e-95c2-4011-8fd6-c5c56df1c9db",
 			"target":      "1.2.3.4:80",
@@ -337,7 +337,7 @@ func TestSelfRegisterNoUpstream(t *testing.T) {
 			FormParam("name", "user.api.jormugandr.org").
 			FormParam("slots", "10").
 			Matcher).
-		Reply(200).
+		Reply(201).
 		JSON(map[string]interface{}{
 			"id":   "13611da7-703f-44f8-b790-fc1e7bf51b3e",
 			"name": "user.api.jormugandr.org",
@@ -363,7 +363,7 @@ func TestSelfRegisterNoUpstream(t *testing.T) {
 			FormParamPattern("target", "\\d+\\.\\d+\\.\\d+\\.\\d+:\\d+").
 			FormParam("weight", "10").
 			Matcher).
-		Reply(200).
+		Reply(201).
 		JSON(map[string]interface{}{
 			"id":          "4661f55e-95c2-4011-8fd6-c5c56df1c9db",
 			"target":      "1.2.3.4:80",
@@ -475,7 +475,7 @@ func TestSelfRegisterWithAPIAndUpstream(t *testing.T) {
 			FormParamPattern("target", "\\d+\\.\\d+\\.\\d+\\.\\d+:\\d+").
 			FormParam("weight", "10").
 			Matcher).
-		Reply(200).
+		Reply(201).
 		JSON(map[string]interface{}{
 			"id":          "4661f55e-95c2-4011-8fd6-c5c56df1c9db",
 			"target":      "1.2.3.4:80",
@@ -577,7 +577,7 @@ func TestUnregister(t *testing.T) {
 			FormParamPattern("target", "\\d+\\.\\d+\\.\\d+\\.\\d+:\\d+").
 			FormParam("weight", "0").
 			Matcher).
-		Reply(200).
+		Reply(201).
 		JSON(map[string]interface{}{
 			"id":          "4661f55e-95c2-4011-8fd6-c5c56df1c9db",
 			"target":      "1.2.3.4:80",
