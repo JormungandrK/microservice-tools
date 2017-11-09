@@ -6,6 +6,11 @@ import (
 	"github.com/streadway/amqp"
 )
 
+// AMQPChannel wraps a amqp.Channel
+type AMQPChannel struct {
+	*amqp.Channel
+}
+
 // Dial returns a new Connection over TCP using PlainAuth
 func Dial(username, password, host, port string) (*amqp.Connection, *amqp.Channel, error) {
 	conn, err := amqp.Dial(
@@ -25,7 +30,7 @@ func Dial(username, password, host, port string) (*amqp.Connection, *amqp.Channe
 }
 
 // Publish sends body to an exchange on the server.
-func Publish(name string, body []byte, channel *amqp.Channel) error {
+func (channel *AMQPChannel) Send(name string, body []byte) error {
 	q, err := channel.QueueDeclare(
 		name,  // name
 		true,  // durable
@@ -51,8 +56,8 @@ func Publish(name string, body []byte, channel *amqp.Channel) error {
 	return err
 }
 
-// Consume immediately starts delivering queued messages.
-func Consume(name string, channel *amqp.Channel) (<-chan amqp.Delivery, error) {
+// Receive immediately starts delivering queued messages.
+func (channel *AMQPChannel) Receive(name string) (<-chan amqp.Delivery, error) {
 	q, err := channel.QueueDeclare(
 		name,  // name
 		true,  // durable
