@@ -29,7 +29,7 @@ func Dial(username, password, host, port string) (*amqp.Connection, *amqp.Channe
 	return conn, ch, err
 }
 
-// Publish sends body to an exchange on the server.
+// Send sends body to an exchange on the server.
 func (channel *AMQPChannel) Send(name string, body []byte) error {
 	q, err := channel.QueueDeclare(
 		name,  // name
