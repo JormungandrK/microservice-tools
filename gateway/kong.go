@@ -105,7 +105,7 @@ func (kong *KongGateway) SelfRegister() error {
 	apiConf.Hosts = kong.config.Hosts
 	apiConf.UpstreamURL = fmt.Sprintf("http://%s:%d", kong.config.VirtualHost, kong.config.MicroservicePort)
 	apiConf.URIs = kong.config.Paths
-	_, err = kong.createOrUpdateAPI(apiConf)
+	_, err := kong.createOrUpdateAPI(apiConf)
 	return err
 
 	// _, err = kong.addSelfAsTarget(kong.config.VirtualHost, kong.config.MicroservicePort, kong.config.Weight)
