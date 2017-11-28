@@ -94,10 +94,10 @@ func NewKongGatewayFromConfigFile(adminURL string, client *http.Client, configFi
 // created on Kong, it creates a new one with the given configuration.
 // 3. Adds new target on kong for the configured 'upstream' and 'API'.
 func (kong *KongGateway) SelfRegister() error {
-	err := kong.createOrUpdateUpstream(kong.config.VirtualHost, kong.config.ServicesMaxSlots)
-	if err != nil {
-		return err
-	}
+	// err := kong.createOrUpdateUpstream(kong.config.VirtualHost, kong.config.ServicesMaxSlots)
+	// if err != nil {
+	// 	return err
+	// }
 
 	apiConf := NewAPIConf()
 	// TODO: map here from config
@@ -106,12 +106,10 @@ func (kong *KongGateway) SelfRegister() error {
 	apiConf.UpstreamURL = fmt.Sprintf("http://%s:%d", kong.config.VirtualHost, kong.config.MicroservicePort)
 	apiConf.URIs = kong.config.Paths
 	_, err = kong.createOrUpdateAPI(apiConf)
-	if err != nil {
-		return err
-	}
-
-	_, err = kong.addSelfAsTarget(kong.config.VirtualHost, kong.config.MicroservicePort, kong.config.Weight)
 	return err
+
+	// _, err = kong.addSelfAsTarget(kong.config.VirtualHost, kong.config.MicroservicePort, kong.config.Weight)
+	// return err
 }
 
 // Unregister unregisters this instance of the microservice from the Kong Gateway.
