@@ -204,7 +204,7 @@ func GetServiceIP() (string, error) {
 				ip = v.IP
 			}
 
-			if ip.String() != "127.0.0.1" && ip.String() != "::1" {
+			if ip.To4() != nil && ip.String() != "127.0.0.1" && ip.String() != "::1" {
 				return ip.String(), nil
 			}
 		}

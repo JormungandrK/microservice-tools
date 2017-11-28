@@ -8,6 +8,9 @@ type SecurityConfig struct {
 	// Disable flags signals whether to disable the security completely.
 	Disable bool
 
+	// Path patterns to be ignored by the security chain (regexp).
+	IgnorePatterns []string `json:"ignorePatterns,omitempty"`
+
 	// KeysDir is the loacation of the directory holding the private-public key pairs.
 	KeysDir string `json:"keysDir"`
 
