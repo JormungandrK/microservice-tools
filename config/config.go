@@ -27,7 +27,14 @@ type ServiceConfig struct {
 
 // DBConfig holds the database configuration parameters.
 type DBConfig struct {
+	// DBname is the database name (mongodb/dynamodb)
+	DBName string `json:"dbName"`
 
+	// DB Info holds the database connection configuration
+	DBInfo `json:"dbInfo"`
+}
+
+type DBInfo struct {
 	// Host is the database host+port URL
 	Host string `json:"host,omitempty"`
 
@@ -39,6 +46,9 @@ type DBConfig struct {
 
 	// DatabaseName is the name of the database where the server will store the collections
 	DatabaseName string `json:"database,omitempty"`
+
+	// AWSCredentials is the full path to aws credentials file
+	AWSCredentials string `json:"credentials,omitempty"`
 }
 
 // LoadConfig loads the service configuration from a file.
