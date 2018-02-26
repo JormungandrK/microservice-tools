@@ -56,41 +56,41 @@ func TestSelfRegisterNoUpstreamNoAPI(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New("http://kong:8001").
-		Get("/upstreams/user.api.jormugandr.org").
-		Reply(404).
-		JSON(map[string]string{"message": "Not Found"})
+	// gock.New("http://kong:8001").
+	// 	Get("/upstreams/user.api.jormugandr.org").
+	// 	Reply(404).
+	// 	JSON(map[string]string{"message": "Not Found"})
 
 	gock.New("http://kong:8001").
 		Get("/apis/user-microservice").
 		Reply(404).
 		JSON(map[string]string{"message": "Not Found"})
 
-	gock.New("http://kong:8001").
-		Post("/upstreams/").
-		SetMatcher(NewFormMatcher().
-			FormParam("name", "user.api.jormugandr.org").
-			FormParam("slots", "10").
-			Matcher).
-		Reply(201).
-		JSON(map[string]interface{}{
-			"id":   "13611da7-703f-44f8-b790-fc1e7bf51b3e",
-			"name": "user.api.jormugandr.org",
-			"orderlist": []int{
-				1,
-				2,
-				7,
-				9,
-				6,
-				4,
-				5,
-				10,
-				3,
-				8,
-			},
-			"slots":      10,
-			"created_at": 1485521710265,
-		})
+	// gock.New("http://kong:8001").
+	// 	Post("/upstreams/").
+	// 	SetMatcher(NewFormMatcher().
+	// 		FormParam("name", "user.api.jormugandr.org").
+	// 		FormParam("slots", "10").
+	// 		Matcher).
+	// 	Reply(201).
+	// 	JSON(map[string]interface{}{
+	// 		"id":   "13611da7-703f-44f8-b790-fc1e7bf51b3e",
+	// 		"name": "user.api.jormugandr.org",
+	// 		"orderlist": []int{
+	// 			1,
+	// 			2,
+	// 			7,
+	// 			9,
+	// 			6,
+	// 			4,
+	// 			5,
+	// 			10,
+	// 			3,
+	// 			8,
+	// 		},
+	// 		"slots":      10,
+	// 		"created_at": 1485521710265,
+	// 	})
 
 	gock.New("http://kong:8001").
 		Post("/apis/").
@@ -127,20 +127,20 @@ func TestSelfRegisterNoUpstreamNoAPI(t *testing.T) {
 			"upstream_url":             "http://user.api.jormugandr.org:8080",
 		})
 
-	gock.New("http://kong:8001").
-		Post("/upstreams/user.api.jormugandr.org/targets").
-		SetMatcher(NewFormMatcher().
-			FormParamPattern("target", "\\d+\\.\\d+\\.\\d+\\.\\d+:\\d+").
-			FormParam("weight", "10").
-			Matcher).
-		Reply(201).
-		JSON(map[string]interface{}{
-			"id":          "4661f55e-95c2-4011-8fd6-c5c56df1c9db",
-			"target":      "1.2.3.4:80",
-			"weight":      10,
-			"upstream_id": "ee3310c1-6789-40ac-9386-f79c0cb58432",
-			"created_at":  1485523507446,
-		})
+	// gock.New("http://kong:8001").
+	// 	Post("/upstreams/user.api.jormugandr.org/targets").
+	// 	SetMatcher(NewFormMatcher().
+	// 		FormParamPattern("target", "\\d+\\.\\d+\\.\\d+\\.\\d+:\\d+").
+	// 		FormParam("weight", "10").
+	// 		Matcher).
+	// 	Reply(201).
+	// 	JSON(map[string]interface{}{
+	// 		"id":          "4661f55e-95c2-4011-8fd6-c5c56df1c9db",
+	// 		"target":      "1.2.3.4:80",
+	// 		"weight":      10,
+	// 		"upstream_id": "ee3310c1-6789-40ac-9386-f79c0cb58432",
+	// 		"created_at":  1485523507446,
+	// 	})
 
 	gock.InterceptClient(client)
 
