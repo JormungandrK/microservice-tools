@@ -34,6 +34,7 @@ type DBConfig struct {
 	DBInfo `json:"dbInfo"`
 }
 
+// DBInfo holds the database connection configuration
 type DBInfo struct {
 	// Host is the database host+port URL
 	Host string `json:"host,omitempty"`
@@ -47,8 +48,24 @@ type DBInfo struct {
 	// DatabaseName is the name of the database where the server will store the collections
 	DatabaseName string `json:"database,omitempty"`
 
+	// Collections is the list of collections which should be created for the service
+	Collections map[string]CollectionInfo `json:"collections,omitempty"`
+
 	// AWSCredentials is the full path to aws credentials file
 	AWSCredentials string `json:"credentials,omitempty"`
+
+	// AWSRegion is the AWS region
+	AWSRegion string `json:'awsRegion, omitemprty'`
+}
+
+// CollectionInfo holds the information about the collections
+type CollectionInfo struct {
+	// Indexes are the collection indexes
+	Indexes []string `json:"indexes, ommitempty"`
+	// EnableTTL sets the TTL for the collection
+	EnableTTL bool `json:"enableTTL, ommitempty"`
+	// TTL is time to live in seconds for the collection
+	TTL int `json:"TTL, ommitempty"`
 }
 
 // LoadConfig loads the service configuration from a file.
