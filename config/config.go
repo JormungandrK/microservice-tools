@@ -62,6 +62,10 @@ type DBInfo struct {
 type CollectionInfo struct {
 	// Indexes are the collection indexes
 	Indexes []string `json:"indexes, ommitempty"`
+	// HashKey is the hash key for dynamoDB table
+	HashKey string `json:"hashKey, ommitempty"`
+	// RangeKey is the range key for dynamoDB table
+	RangeKey string `json:"rangeKey, ommitempty"`
 	// EnableTTL sets the TTL for the collection
 	EnableTTL bool `json:"enableTTL, ommitempty"`
 	// TTL is time to live in seconds for the collection
