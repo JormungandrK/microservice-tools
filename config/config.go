@@ -54,8 +54,11 @@ type DBInfo struct {
 	// AWSCredentials is the full path to aws credentials file
 	AWSCredentials string `json:"credentials,omitempty"`
 
+	// AWSEndpoint is the full path to aws credentials file
+	AWSEndpoint string `json:"endpoint,omitempty"`
+
 	// AWSRegion is the AWS region
-	AWSRegion string `json:'awsRegion, omitemprty'`
+	AWSRegion string `json:'awsRegion,omitemprty'`
 }
 
 // CollectionInfo holds the information about the collections
@@ -70,6 +73,10 @@ type CollectionInfo struct {
 	EnableTTL bool `json:"enableTTL, ommitempty"`
 	// TTL is time to live in seconds for the collection
 	TTL int `json:"TTL, ommitempty"`
+	// ReadCapacity sets the read capacity for dynamo table
+	ReadCapacity int64 `json:"readCapacity,omitempty"`
+	// WriteCapacity sets the read capacity for dynamo table
+	WriteCapacity int64 `json:"writeCapacity,omitempty"`
 }
 
 // LoadConfig loads the service configuration from a file.
