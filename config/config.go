@@ -48,9 +48,6 @@ type DBInfo struct {
 	// DatabaseName is the name of the database where the server will store the collections
 	DatabaseName string `json:"database,omitempty"`
 
-	// Collections is the list of collections which should be created for the service
-	Collections map[string]CollectionInfo `json:"collections,omitempty"`
-
 	// AWSCredentials is the full path to aws credentials file
 	AWSCredentials string `json:"credentials,omitempty"`
 
@@ -59,24 +56,6 @@ type DBInfo struct {
 
 	// AWSRegion is the AWS region
 	AWSRegion string `json:'awsRegion,omitemprty'`
-}
-
-// CollectionInfo holds the information about the collections
-type CollectionInfo struct {
-	// Indexes are the collection indexes
-	Indexes []string `json:"indexes, ommitempty"`
-	// HashKey is the hash key for dynamoDB table
-	HashKey string `json:"hashKey, ommitempty"`
-	// RangeKey is the range key for dynamoDB table
-	RangeKey string `json:"rangeKey, ommitempty"`
-	// EnableTTL sets the TTL for the collection
-	EnableTTL bool `json:"enableTTL, ommitempty"`
-	// TTL is time to live in seconds for the collection
-	TTL int `json:"TTL, ommitempty"`
-	// ReadCapacity sets the read capacity for dynamo table
-	ReadCapacity int64 `json:"readCapacity,omitempty"`
-	// WriteCapacity sets the read capacity for dynamo table
-	WriteCapacity int64 `json:"writeCapacity,omitempty"`
 }
 
 // LoadConfig loads the service configuration from a file.
