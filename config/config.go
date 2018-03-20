@@ -68,3 +68,12 @@ func LoadConfig(confFile string) (*ServiceConfig, error) {
 	err = json.Unmarshal(data, conf)
 	return conf, err
 }
+
+// LoadConfigAs loads a generic configuration from a JSON file into predefined structure.
+func LoadConfigAs(confFile string, conf interface{}) error {
+	data, err := ioutil.ReadFile(confFile)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(data, conf)
+}
