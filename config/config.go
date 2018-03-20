@@ -15,7 +15,7 @@ type ServiceConfig struct {
 	// Service holds the confgiuration for connecting and registering the service with the API Gateway
 	Service *gateway.MicroserviceConfig `json:"service"`
 	// SecurityConfig holds the security configuration
-	SecurityConfig `json:"security, omitempty"`
+	SecurityConfig `json:"security,omitempty"`
 	// DBConfig holds the database connection configuration
 	DBConfig `json:"database"`
 	// GatewayURL is the URL of the API Gateway
@@ -42,7 +42,7 @@ type DBInfo struct {
 	// Username is the username used to access the database
 	Username string `json:"user,omitempty"`
 
-	// Password is the databse user password
+	// Password is the database user password
 	Password string `json:"pass,omitempty"`
 
 	// DatabaseName is the name of the database where the server will store the collections
