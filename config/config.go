@@ -23,6 +23,9 @@ type ServiceConfig struct {
 	// GatewayAdminURL is the administration URL of the API Gateway. Used for purposes of registration of a
 	// microservice with the API gateway.
 	GatewayAdminURL string `json:"gatewayAdminUrl"`
+	// ContainerManager is the platform for managing containerized services
+	// Can be swarm or kubernetes
+	ContainerManager string `json:"containerManager, omitempty"`
 }
 
 // DBConfig holds the database configuration parameters.
