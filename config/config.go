@@ -58,7 +58,7 @@ type DBInfo struct {
 	AWSEndpoint string `json:"endpoint,omitempty"`
 
 	// AWSRegion is the AWS region
-	AWSRegion string `json:'awsRegion,omitemprty'`
+	AWSRegion string `json:"awsRegion,omitempty"`
 }
 
 // LoadConfig loads the service configuration from a file.
