@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	"github.com/JormungandrK/microservice-tools/gateway"
+	"github.com/Microkubes/microservice-tools/gateway"
 )
 
 // ServiceConfig holds the full microservice configuration:
