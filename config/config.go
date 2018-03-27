@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	"github.com/JormungandrK/microservice-tools/gateway"
+	"github.com/Microkubes/microservice-tools/gateway"
 )
 
 // ServiceConfig holds the full microservice configuration:
@@ -25,7 +25,7 @@ type ServiceConfig struct {
 	GatewayAdminURL string `json:"gatewayAdminUrl"`
 	// ContainerManager is the platform for managing containerized services
 	// Can be swarm or kubernetes
-	ContainerManager string `json:"containerManager, omitempty"`
+	ContainerManager string `json:"containerManager,omitempty"`
 }
 
 // DBConfig holds the database configuration parameters.
