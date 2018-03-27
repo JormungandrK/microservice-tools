@@ -1,7 +1,7 @@
 Package with shared tools for the microservices
 ===============================================
 
-[![Build](https://travis-ci.com/JormungandrK/microservice-tools.svg?token=UB5yzsLHNSbtjSYrGbWf&branch=master)](https://travis-ci.com/JormungandrK/microservice-tools)
+[![Build](https://travis-ci.com/Microkubes/microservice-tools.svg?token=UB5yzsLHNSbtjSYrGbWf&branch=master)](https://travis-ci.com/Microkubes/microservice-tools)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/b2cc2c65045b0a12e6e7/test_coverage)](https://codeclimate.com/repos/59e72590aed7c5028e000970/test_coverage)
 [![Maintainability](https://api.codeclimate.com/v1/badges/b2cc2c65045b0a12e6e7/maintainability)](https://codeclimate.com/repos/59e72590aed7c5028e000970/maintainability)
 
@@ -12,7 +12,7 @@ This package provides tools that can be used by all microservices, such as:
 
 To install run:
 ```bash
-go get -u github.com/JormungandrK/microservice-tools
+go get -u github.com/Microkubes/microservice-tools
 ```
 
 ## Install it from the private repository
