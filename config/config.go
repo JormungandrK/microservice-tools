@@ -15,7 +15,7 @@ type ServiceConfig struct {
 	// Service holds the confgiuration for connecting and registering the service with the API Gateway
 	Service *gateway.MicroserviceConfig `json:"service"`
 	// SecurityConfig holds the security configuration
-	SecurityConfig `json:"security, omitempty"`
+	SecurityConfig `json:"security,omitempty"`
 	// DBConfig holds the database connection configuration
 	DBConfig `json:"database"`
 	// GatewayURL is the URL of the API Gateway
@@ -25,23 +25,40 @@ type ServiceConfig struct {
 	GatewayAdminURL string `json:"gatewayAdminUrl"`
 	// ContainerManager is the platform for managing containerized services
 	// Can be swarm or kubernetes
-	ContainerManager string `json:"containerManager, omitempty"`
+	ContainerManager string `json:"containerManager,omitempty"`
 }
 
 // DBConfig holds the database configuration parameters.
 type DBConfig struct {
+	// DBname is the database name (mongodb/dynamodb)
+	DBName string `json:"dbName"`
 
+	// DB Info holds the database connection configuration
+	DBInfo `json:"dbInfo"`
+}
+
+// DBInfo holds the database connection configuration
+type DBInfo struct {
 	// Host is the database host+port URL
 	Host string `json:"host,omitempty"`
 
 	// Username is the username used to access the database
 	Username string `json:"user,omitempty"`
 
-	// Password is the databse user password
+	// Password is the database user password
 	Password string `json:"pass,omitempty"`
 
 	// DatabaseName is the name of the database where the server will store the collections
 	DatabaseName string `json:"database,omitempty"`
+
+	// AWSCredentials is the full path to aws credentials file
+	AWSCredentials string `json:"credentials,omitempty"`
+
+	// AWSEndpoint is the full path to aws credentials file
+	AWSEndpoint string `json:"endpoint,omitempty"`
+
+	// AWSRegion is the AWS region
+	AWSRegion string `json:"awsRegion,omitempty"`
 }
 
 // LoadConfig loads the service configuration from a file.
