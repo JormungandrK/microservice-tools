@@ -66,7 +66,6 @@ func NewHTTPDataLoader(client *http.Client) DataLoader {
 // stored on the consul server.
 func NewConsulKVDataLoader(consulURL string, client *http.Client) DataLoader {
 	return func(dataURI string) ([]byte, error) {
-		fmt.Println("CONSUL URL -> ", fmt.Sprintf("%s/kv/%s", consulURL, dataURI))
 		data, err := loadDataOverHTTP(fmt.Sprintf("%s/v1/kv/%s", consulURL, dataURI), client)
 		if err != nil {
 			return nil, err
