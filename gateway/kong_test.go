@@ -56,41 +56,10 @@ func TestSelfRegisterNoUpstreamNoAPI(t *testing.T) {
 
 	defer gock.Off()
 
-	// gock.New("http://kong:8001").
-	// 	Get("/upstreams/user.api.jormugandr.org").
-	// 	Reply(404).
-	// 	JSON(map[string]string{"message": "Not Found"})
-
 	gock.New("http://kong:8001").
 		Get("/apis/user-microservice").
 		Reply(404).
 		JSON(map[string]string{"message": "Not Found"})
-
-	// gock.New("http://kong:8001").
-	// 	Post("/upstreams/").
-	// 	SetMatcher(NewFormMatcher().
-	// 		FormParam("name", "user.api.jormugandr.org").
-	// 		FormParam("slots", "10").
-	// 		Matcher).
-	// 	Reply(201).
-	// 	JSON(map[string]interface{}{
-	// 		"id":   "13611da7-703f-44f8-b790-fc1e7bf51b3e",
-	// 		"name": "user.api.jormugandr.org",
-	// 		"orderlist": []int{
-	// 			1,
-	// 			2,
-	// 			7,
-	// 			9,
-	// 			6,
-	// 			4,
-	// 			5,
-	// 			10,
-	// 			3,
-	// 			8,
-	// 		},
-	// 		"slots":      10,
-	// 		"created_at": 1485521710265,
-	// 	})
 
 	gock.New("http://kong:8001").
 		Post("/apis/").
@@ -126,21 +95,6 @@ func TestSelfRegisterNoUpstreamNoAPI(t *testing.T) {
 			"upstream_send_timeout":    60000,
 			"upstream_url":             "http://user.api.jormugandr.org:8080",
 		})
-
-	// gock.New("http://kong:8001").
-	// 	Post("/upstreams/user.api.jormugandr.org/targets").
-	// 	SetMatcher(NewFormMatcher().
-	// 		FormParamPattern("target", "\\d+\\.\\d+\\.\\d+\\.\\d+:\\d+").
-	// 		FormParam("weight", "10").
-	// 		Matcher).
-	// 	Reply(201).
-	// 	JSON(map[string]interface{}{
-	// 		"id":          "4661f55e-95c2-4011-8fd6-c5c56df1c9db",
-	// 		"target":      "1.2.3.4:80",
-	// 		"weight":      10,
-	// 		"upstream_id": "ee3310c1-6789-40ac-9386-f79c0cb58432",
-	// 		"created_at":  1485523507446,
-	// 	})
 
 	gock.InterceptClient(client)
 
@@ -175,28 +129,6 @@ func TestSelfRegisterNoAPI(t *testing.T) {
 	defer gock.Off()
 
 	gock.New("http://kong:8001").
-		Get("/upstreams/user.api.jormugandr.org").
-		Reply(200).
-		JSON(map[string]interface{}{
-			"id":   "13611da7-703f-44f8-b790-fc1e7bf51b3e",
-			"name": "user.api.jormugandr.org",
-			"orderlist": []int{
-				1,
-				2,
-				7,
-				9,
-				6,
-				4,
-				5,
-				10,
-				3,
-				8,
-			},
-			"slots":      10,
-			"created_at": 1485521710265,
-		})
-
-	gock.New("http://kong:8001").
 		Get("/apis/user-microservice").
 		Reply(404).
 		JSON(map[string]string{"message": "Not Found"})
@@ -234,142 +166,6 @@ func TestSelfRegisterNoAPI(t *testing.T) {
 			"upstream_read_timeout":    60000,
 			"upstream_send_timeout":    60000,
 			"upstream_url":             "http://user.api.jormugandr.org:8080",
-		})
-
-	gock.New("http://kong:8001").
-		Post("/upstreams/user.api.jormugandr.org/targets").
-		SetMatcher(NewFormMatcher().
-			FormParamPattern("target", "\\d+\\.\\d+\\.\\d+\\.\\d+:\\d+").
-			FormParam("weight", "10").
-			Matcher).
-		Reply(201).
-		JSON(map[string]interface{}{
-			"id":          "4661f55e-95c2-4011-8fd6-c5c56df1c9db",
-			"target":      "1.2.3.4:80",
-			"weight":      10,
-			"upstream_id": "ee3310c1-6789-40ac-9386-f79c0cb58432",
-			"created_at":  1485523507446,
-		})
-
-	gock.InterceptClient(client)
-
-	config := &MicroserviceConfig{
-		MicroserviceName: "user-microservice",
-		MicroservicePort: 8080,
-		ServicesMaxSlots: 10,
-		VirtualHost:      "user.api.jormugandr.org",
-		Weight:           10,
-		Hosts:            []string{"localhost", "user.api.jormugandr.org"},
-	}
-	gateway := NewKongGateway("http://kong:8001", client, config)
-
-	err := gateway.SelfRegister()
-	if err != nil {
-		panic(err)
-	}
-
-	if gock.IsPending() {
-		all := gock.GetAll()
-		for _, mock := range all {
-			t.Error("Mock:", mock.Request())
-		}
-
-		panic(fmt.Sprintf("Expected 4 HTTP calls to be made, but there are %d still pending", len(all)))
-	}
-}
-
-func TestSelfRegisterNoUpstream(t *testing.T) {
-	client := &http.Client{}
-
-	defer gock.Off()
-
-	gock.New("http://kong:8001").
-		Get("/upstreams/user.api.jormugandr.org").
-		Reply(404).
-		JSON(map[string]string{"message": "Not Found"})
-
-	gock.New("http://kong:8001").
-		Get("/apis/user-microservice").
-		Reply(200).
-		JSON(map[string]interface{}{
-			"created_at": 1488830759000,
-			"hosts": []string{
-				"localhost",
-				"user.api.jormugandr.org",
-			},
-			"http_if_terminated":       true,
-			"https_only":               false,
-			"id":                       "6378122c-a0a1-438d-a5c6-efabae9fb969",
-			"name":                     "user-microservice",
-			"preserve_host":            false,
-			"retries":                  5,
-			"strip_uri":                false,
-			"upstream_connect_timeout": 60000,
-			"upstream_read_timeout":    60000,
-			"upstream_send_timeout":    60000,
-			"upstream_url":             "http://user.api.jormugandr.org:8080",
-		})
-	gock.New("http://kong:8001").
-		Patch("/apis/6378122c-a0a1-438d-a5c6-efabae9fb969").
-		Reply(200).
-		JSON(map[string]interface{}{
-			"created_at": 1488830759000,
-			"hosts": []string{
-				"localhost",
-				"user.api.jormugandr.org",
-			},
-			"http_if_terminated":       true,
-			"https_only":               false,
-			"id":                       "6378122c-a0a1-438d-a5c6-efabae9fb969",
-			"name":                     "user-microservice",
-			"preserve_host":            false,
-			"retries":                  5,
-			"strip_uri":                false,
-			"upstream_connect_timeout": 60000,
-			"upstream_read_timeout":    60000,
-			"upstream_send_timeout":    60000,
-			"upstream_url":             "http://user.api.jormugandr.org:8080",
-		})
-
-	gock.New("http://kong:8001").
-		Post("/upstreams/").
-		SetMatcher(NewFormMatcher().
-			FormParam("name", "user.api.jormugandr.org").
-			FormParam("slots", "10").
-			Matcher).
-		Reply(201).
-		JSON(map[string]interface{}{
-			"id":   "13611da7-703f-44f8-b790-fc1e7bf51b3e",
-			"name": "user.api.jormugandr.org",
-			"orderlist": []int{
-				1,
-				2,
-				7,
-				9,
-				6,
-				4,
-				5,
-				10,
-				3,
-				8,
-			},
-			"slots":      10,
-			"created_at": 1485521710265,
-		})
-
-	gock.New("http://kong:8001").
-		Post("/upstreams/user.api.jormugandr.org/targets").
-		SetMatcher(NewFormMatcher().
-			FormParamPattern("target", "\\d+\\.\\d+\\.\\d+\\.\\d+:\\d+").
-			FormParam("weight", "10").
-			Matcher).
-		Reply(201).
-		JSON(map[string]interface{}{
-			"id":          "4661f55e-95c2-4011-8fd6-c5c56df1c9db",
-			"target":      "1.2.3.4:80",
-			"weight":      10,
-			"upstream_id": "ee3310c1-6789-40ac-9386-f79c0cb58432",
-			"created_at":  1485523507446,
 		})
 
 	gock.InterceptClient(client)
@@ -405,28 +201,6 @@ func TestSelfRegisterWithAPIAndUpstream(t *testing.T) {
 	defer gock.Off()
 
 	gock.New("http://kong:8001").
-		Get("/upstreams/user.api.jormugandr.org").
-		Reply(200).
-		JSON(map[string]interface{}{
-			"id":   "13611da7-703f-44f8-b790-fc1e7bf51b3e",
-			"name": "user.api.jormugandr.org",
-			"orderlist": []int{
-				1,
-				2,
-				7,
-				9,
-				6,
-				4,
-				5,
-				10,
-				3,
-				8,
-			},
-			"slots":      10,
-			"created_at": 1485521710265,
-		})
-
-	gock.New("http://kong:8001").
 		Get("/apis/user-microservice").
 		Reply(200).
 		JSON(map[string]interface{}{
@@ -467,21 +241,6 @@ func TestSelfRegisterWithAPIAndUpstream(t *testing.T) {
 			"upstream_read_timeout":    60000,
 			"upstream_send_timeout":    60000,
 			"upstream_url":             "http://user.api.jormugandr.org:8080",
-		})
-
-	gock.New("http://kong:8001").
-		Post("/upstreams/user.api.jormugandr.org/targets").
-		SetMatcher(NewFormMatcher().
-			FormParamPattern("target", "\\d+\\.\\d+\\.\\d+\\.\\d+:\\d+").
-			FormParam("weight", "10").
-			Matcher).
-		Reply(201).
-		JSON(map[string]interface{}{
-			"id":          "4661f55e-95c2-4011-8fd6-c5c56df1c9db",
-			"target":      "1.2.3.4:80",
-			"weight":      10,
-			"upstream_id": "ee3310c1-6789-40ac-9386-f79c0cb58432",
-			"created_at":  1485523507446,
 		})
 
 	gock.InterceptClient(client)
