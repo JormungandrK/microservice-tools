@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -65,8 +66,39 @@ func NewHTTPDataLoader(client *http.Client) DataLoader {
 // stored on the consul server.
 func NewConsulKVDataLoader(consulURL string, client *http.Client) DataLoader {
 	return func(dataURI string) ([]byte, error) {
-		return loadDataOverHTTP(fmt.Sprintf("%s/kv/%s", consulURL, dataURI), client)
+		data, err := loadDataOverHTTP(fmt.Sprintf("%s/v1/kv/%s", consulURL, dataURI), client)
+		if err != nil {
+			return nil, err
+		}
+		return extractConsulValue(data)
 	}
+}
+
+func extractConsulValue(data []byte) ([]byte, error) {
+	value := []interface{}{}
+	if err := json.Unmarshal(data, &value); err != nil {
+		return nil, err
+	}
+
+	base64encodedValue, err := extractConsulValueFromKVRecord(value)
+	if err != nil {
+		return nil, err
+	}
+
+	return base64.StdEncoding.DecodeString(base64encodedValue)
+}
+
+func extractConsulValueFromKVRecord(record []interface{}) (string, error) {
+	if len(record) == 0 {
+		return "", fmt.Errorf("no value in record")
+	}
+	if consulValue, ok := record[0].(map[string]interface{}); ok {
+		if actualValue, ok := consulValue["Value"]; ok {
+			return actualValue.(string), nil
+		}
+		return "", fmt.Errorf("no value in record")
+	}
+	return "", fmt.Errorf("dont know what to do with record item %v", record[0])
 }
 
 func loadDataOverHTTP(dataURL string, client *http.Client) ([]byte, error) {
