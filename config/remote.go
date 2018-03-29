@@ -75,7 +75,8 @@ func NewConsulKVDataLoader(consulURL string, client *http.Client) DataLoader {
 }
 
 func extractConsulValue(data []byte) ([]byte, error) {
-	value := []interface{}{}
+	value := []map[string]interface{}{}
+	fmt.Println("Data -> ", string(data))
 	if err := json.Unmarshal(data, &value); err != nil {
 		return nil, err
 	}
@@ -88,17 +89,15 @@ func extractConsulValue(data []byte) ([]byte, error) {
 	return base64.StdEncoding.DecodeString(base64encodedValue)
 }
 
-func extractConsulValueFromKVRecord(record []interface{}) (string, error) {
+func extractConsulValueFromKVRecord(record []map[string]interface{}) (string, error) {
 	if len(record) == 0 {
 		return "", fmt.Errorf("no value in record")
 	}
-	if consulValue, ok := record[0].(map[string]interface{}); ok {
-		if actualValue, ok := consulValue["Value"]; ok {
-			return actualValue.(string), nil
-		}
-		return "", fmt.Errorf("no value in record")
+	consulValue := record[0]
+	if actualValue, ok := consulValue["Value"]; ok {
+		return actualValue.(string), nil
 	}
-	return "", fmt.Errorf("dont know what to do with record item %v", record[0])
+	return "", fmt.Errorf("no value in record")
 }
 
 func loadDataOverHTTP(dataURL string, client *http.Client) ([]byte, error) {
