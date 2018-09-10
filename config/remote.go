@@ -1,29 +1,37 @@
 package config
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"net/http"
 )
 
 // LoadRemoteConfig loads a configuration from a remote location (configURL) into an object reference.
 // For convenience, it also returns the loaded object.
-func LoadRemoteConfig(configURL string, configObj interface{}) (interface{}, error) {
-	return LoadRemoteConfigWithLoader(configURL, NewHTTPDataLoader(&http.Client{}), configObj)
+func LoadRemoteConfig(configURL string, configObj interface{}, templateData interface{}) (interface{}, error) {
+	return LoadRemoteConfigWithLoader(configURL, NewHTTPDataLoader(&http.Client{}), configObj, templateData)
 }
 
 // LoadRemoteConfigWithLoader loads a configuration from a remote location (configURL) into an object reference using
 // a DataLoader to fetch the data from the remote source.
+// If config is template file it evaluates the template variable with templateData fields
 // For convenience, it also returns the loaded object.
-func LoadRemoteConfigWithLoader(configURL string, loader DataLoader, configObj interface{}) (interface{}, error) {
+func LoadRemoteConfigWithLoader(configURL string, loader DataLoader, configObj interface{}, templateData interface{}) (interface{}, error) {
 	data, err := loader(configURL)
 	if err != nil {
 		return nil, err
 	}
 
-	err = json.Unmarshal(data, configObj)
+	serviceConfig, err := parseConfig(data, templateData)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(serviceConfig, configObj)
 	if err != nil {
 		return nil, err
 	}
@@ -31,15 +39,15 @@ func LoadRemoteConfigWithLoader(configURL string, loader DataLoader, configObj i
 }
 
 // LoadRemoteStdConfig loads a standard configuration (ServiceConfig struct) from a remote source.
-func LoadRemoteStdConfig(configURL string) (*ServiceConfig, error) {
-	return LoadRemoteStdConfigWithLoader(configURL, NewHTTPDataLoader(&http.Client{}))
+func LoadRemoteStdConfig(configURL string, templateData interface{}) (*ServiceConfig, error) {
+	return LoadRemoteStdConfigWithLoader(configURL, NewHTTPDataLoader(&http.Client{}), templateData)
 }
 
 // LoadRemoteStdConfigWithLoader loads a standard configuration (ServiceConfig struct) from a remote source using
 // a DataLoader to fetch the data.
-func LoadRemoteStdConfigWithLoader(configURL string, loader DataLoader) (*ServiceConfig, error) {
+func LoadRemoteStdConfigWithLoader(configURL string, loader DataLoader, templateData interface{}) (*ServiceConfig, error) {
 	cfg := &ServiceConfig{}
-	if _, err := LoadRemoteConfigWithLoader(configURL, loader, cfg); err != nil {
+	if _, err := LoadRemoteConfigWithLoader(configURL, loader, cfg, templateData); err != nil {
 		return nil, err
 	}
 	return cfg, nil
@@ -110,4 +118,16 @@ func loadDataOverHTTP(dataURL string, client *http.Client) ([]byte, error) {
 		return nil, fmt.Errorf("no response")
 	}
 	return ioutil.ReadAll(resp.Body)
+}
+
+func parseConfig(data []byte, templateData interface{}) ([]byte, error) {
+	tmpl, err := template.New("config").Parse(string(data))
+	if err != nil {
+		return nil, err
+	}
+
+	var buff bytes.Buffer
+	err = tmpl.Execute(&buff, templateData)
+
+	return buff.Bytes(), err
 }
