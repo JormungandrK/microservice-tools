@@ -5,9 +5,9 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"io/ioutil"
 	"net/http"
+	"text/template"
 )
 
 // LoadRemoteConfig loads a configuration from a remote location (configURL) into an object reference.
