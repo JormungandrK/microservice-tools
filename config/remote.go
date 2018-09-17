@@ -21,20 +21,25 @@ func LoadRemoteConfig(configURL string, configObj interface{}, templateData inte
 // If config is template file it evaluates the template variable with templateData fields
 // For convenience, it also returns the loaded object.
 func LoadRemoteConfigWithLoader(configURL string, loader DataLoader, configObj interface{}, templateData interface{}) (interface{}, error) {
+	var data []byte
+
 	data, err := loader(configURL)
 	if err != nil {
 		return nil, err
 	}
 
-	serviceConfig, err := parseConfig(data, templateData)
+	if templateData != nil {
+		data, err = parseConfig(data, templateData)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	err = json.Unmarshal(data, configObj)
 	if err != nil {
 		return nil, err
 	}
 
-	err = json.Unmarshal(serviceConfig, configObj)
-	if err != nil {
-		return nil, err
-	}
 	return configObj, nil
 }
 
