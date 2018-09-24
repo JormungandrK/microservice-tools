@@ -80,3 +80,33 @@ func LoadConfigAs(confFile string, conf interface{}) error {
 	}
 	return json.Unmarshal(data, conf)
 }
+
+func readFileAndMerge(confFile string, variables interface{}) ([]byte, error) {
+	data, err := ioutil.ReadFile(confFile)
+	if err != nil {
+		return nil, err
+	}
+	if variables == nil {
+		return data, nil
+	}
+	return parseConfig(data, variables)
+}
+
+// LoadConfigAsTypeAndMerge loads configuration template from a file and merges with the provided variables.
+func LoadConfigAsTypeAndMerge(confFile string, conf interface{}, variables interface{}) error {
+	data, err := readFileAndMerge(confFile, variables)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(data, conf)
+}
+
+func LoadConfigAndMerge(confFile string, variables interface{}) (*ServiceConfig, error) {
+	data, err := readFileAndMerge(confFile, variables)
+	if err != nil {
+		return nil, err
+	}
+	conf := &ServiceConfig{}
+	err = json.Unmarshal(data, conf)
+	return conf, err
+}
