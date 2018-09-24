@@ -93,6 +93,7 @@ func readFileAndMerge(confFile string, variables interface{}) ([]byte, error) {
 }
 
 // LoadConfigAsTypeAndMerge loads configuration template from a file and merges with the provided variables.
+// The configuration is unmarshalled into the provided configuration interface.
 func LoadConfigAsTypeAndMerge(confFile string, conf interface{}, variables interface{}) error {
 	data, err := readFileAndMerge(confFile, variables)
 	if err != nil {
@@ -101,6 +102,8 @@ func LoadConfigAsTypeAndMerge(confFile string, conf interface{}, variables inter
 	return json.Unmarshal(data, conf)
 }
 
+// LoadConfigAndMerge loads configuration template from a file and merges the template with the provided variables.
+// The merged configuration is then unmarshalled into a standard ServiceConfig structure.
 func LoadConfigAndMerge(confFile string, variables interface{}) (*ServiceConfig, error) {
 	data, err := readFileAndMerge(confFile, variables)
 	if err != nil {
