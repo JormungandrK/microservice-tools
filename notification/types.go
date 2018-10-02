@@ -15,7 +15,7 @@ const (
 	// Event object for microservice-organization
 	ORGANIZATION = "organization"
 	// Event object for schema-management
-	SCHEMATYPE = "schema"
+	SCHEMA = "schema"
 	// Event object for microservice-resources
 	RESOURCE = "resource"
 	// Event object for microservice-data
