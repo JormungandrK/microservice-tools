@@ -3,11 +3,11 @@ package notification
 // Event types
 const (
 	// CREATE means create new service
-	CREATE = "create"
+	CREATED = "create"
 	// UPDATE means update existing service
-	UPDATE = "update"
+	UPDATED = "update"
 	// DELETE means delete existing service
-	DELETE = "delete"
+	DELETED = "delete"
 )
 
 // Object types
