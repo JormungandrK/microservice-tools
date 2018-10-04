@@ -20,6 +20,14 @@ type EventPayload struct {
 	Data map[string]interface{} `json:"data"`
 }
 
+// ErrorPayload holds the event payload and error message
+type ErrorPayload struct {
+	// EventPayload is the event payload
+	EventPayload *EventPayload
+	// Message is the actual error message
+	Message string `json:"message"`
+}
+
 // ObjectHandler receives message from message queue
 type ObjectHandler func(amqpChan <-chan amqp.Delivery)
 
