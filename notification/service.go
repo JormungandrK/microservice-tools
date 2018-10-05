@@ -18,14 +18,9 @@ type EventPayload struct {
 	Event string `json:"event"`
 	// Data holds the additional event data
 	Data map[string]interface{} `json:"data"`
-}
-
-// ErrorPayload holds the event payload and error message
-type ErrorPayload struct {
-	// EventPayload is the event payload
-	EventPayload *EventPayload
-	// Message is the actual error message
-	Message string `json:"message"`
+	// ErrorMessage is the actual error if it happens.
+	// Event payload in thi case is published on error queue
+	ErrorMessage string `json:"errorMessage"`
 }
 
 // ObjectHandler receives message from message queue
@@ -33,9 +28,10 @@ type ObjectHandler func(amqpChan <-chan amqp.Delivery)
 
 // AMQPService holds info for AMQP based implementation
 type AMQPService struct {
-	Channel   *rabbitmq.AMQPChannel
-	QueueName string
-	handlers  []ObjectHandler
+	Channel      *rabbitmq.AMQPChannel
+	ExchnageName string
+	ExchangeType string
+	handlers     []ObjectHandler
 }
 
 // Service defines the interface for sending object to the queue
@@ -46,6 +42,10 @@ type Service interface {
 	ReceiveObjects() error
 	// AddObjectHandler adds new platform object handler
 	AddObjectHandler(handler ObjectHandler)
+	// SetQueueName set the queue name for the notification service
+	SetExchangeName(queueName string)
+	// GetQueueName return the queue name of notification service
+	GetExchangeName(queueName string) string
 }
 
 // NewService creates notification service for sending and receiving messages on the queue
@@ -66,14 +66,24 @@ func NewService(mqConfig *commonCfg.MQConfig) (*AMQPService, func(), error) {
 	}, nil
 }
 
-// SetQueueName set the queue name for the notification service
-func (a *AMQPService) SetQueueName(queueName string) {
-	a.QueueName = queueName
+// SetExchangeName set the queue name for the notification service
+func (a *AMQPService) SetExchangeName(exchnageName string) {
+	a.ExchnageName = exchnageName
 }
 
-// GetQueueName return the queue name of notification service
-func (a *AMQPService) GetQueueName(queueName string) string {
-	return a.QueueName
+// GetExchangeName return the queue name of notification service
+func (a *AMQPService) GetExchangeName(exchnageName string) string {
+	return a.ExchnageName
+}
+
+// SetExchnageType sets the exchnage type
+func (a *AMQPService) SetExchnageType(exchangeType string) {
+	a.ExchangeType = exchangeType
+}
+
+// GetExchangeType returns the exchange type
+func (a *AMQPService) GetExchangeType(exchnageType string) string {
+	return a.ExchangeType
 }
 
 // SendObject sends an event object for handling platform objects to the queue
@@ -83,21 +93,18 @@ func (a *AMQPService) SendObject(e *EventPayload) error {
 		return err
 	}
 
-	return a.Channel.Send(a.QueueName, paylaod)
+	return a.Channel.SendToExchange(a.ExchnageName, a.ExchangeType, paylaod)
 }
 
-// ReceiveObjects receives platorm object payload
-// It calls notification service handlers
+// ReceiveObjects receives platorm object payload. It calls notification service handlers
 func (a *AMQPService) ReceiveObjects() error {
-	ampqChan, err := a.Channel.Receive(a.QueueName)
+	ampqChan, err := a.Channel.ReceiveOnExchange(a.ExchnageName, a.ExchangeType)
 	if err != nil {
 		return err
 	}
 
 	for _, handler := range a.handlers {
-		go func(h ObjectHandler) {
-			h(ampqChan)
-		}(handler)
+		go handler(ampqChan)
 	}
 
 	return nil
