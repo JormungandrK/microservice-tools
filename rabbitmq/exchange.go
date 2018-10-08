@@ -68,7 +68,7 @@ func (c *AMQPChannel) ReceiveOnExchange(name string, excType string) (<-chan amq
 	if err = c.QueueBind(
 		q.Name, // queue name
 		"",     // routing key
-		"logs", // exchange
+		name,   // exchange
 		false,
 		nil,
 	); err != nil {
