@@ -42,9 +42,9 @@ type Service interface {
 	ReceiveObjects() error
 	// AddObjectHandler adds new platform object handler
 	AddObjectHandler(handler ObjectHandler)
-	// SetQueueName set the queue name for the notification service
-	SetExchangeName(queueName string)
-	// GetQueueName return the queue name of notification service
+	// SetExchangeName set the exchange name for the notification service
+	SetExchangeName(exchnageName string)
+	// GetExchangeName return the exchange name of notification service
 	GetExchangeName(queueName string) string
 }
 
@@ -66,12 +66,12 @@ func NewService(mqConfig *commonCfg.MQConfig) (*AMQPService, func(), error) {
 	}, nil
 }
 
-// SetExchangeName set the queue name for the notification service
+// SetExchangeName set the exchange name for the notification service
 func (a *AMQPService) SetExchangeName(exchnageName string) {
 	a.ExchnageName = exchnageName
 }
 
-// GetExchangeName return the queue name of notification service
+// GetExchangeName return the exchange name of notification service
 func (a *AMQPService) GetExchangeName(exchnageName string) string {
 	return a.ExchnageName
 }
