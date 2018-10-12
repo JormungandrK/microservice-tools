@@ -18,9 +18,9 @@ type EventPayload struct {
 	Event string `json:"event"`
 	// Data holds the additional event data
 	Data map[string]interface{} `json:"data"`
-	// ErrorMessage is the actual error if it happens.
-	// Event payload in thi case is published on error queue
-	ErrorMessage string `json:"errorMessage"`
+	// ErrorMessages is the actual errors if they happen.
+	// Event payload in this case is published on error queue along with errors
+	ErrorMessages []string `json:"errorMessages"`
 }
 
 // ObjectHandler receives message from message queue
