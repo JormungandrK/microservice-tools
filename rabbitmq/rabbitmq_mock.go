@@ -16,3 +16,13 @@ func (channel *MockAMQPChannel) Send(name string, body []byte) error {
 func (channel *MockAMQPChannel) Receive(name string) (<-chan amqp.Delivery, error) {
 	return nil, nil
 }
+
+// SendToExchange mocks sending body to an exchange.
+func (channel *MockAMQPChannel) SendToExchange(name string, excType string, body []byte) error {
+	return nil
+}
+
+// ReceiveOnExchange immediately starts delivering queued messages.
+func (channel *MockAMQPChannel) ReceiveOnExchange(name string, excType string) (<-chan amqp.Delivery, error) {
+	return nil, nil
+}
