@@ -59,6 +59,15 @@ type DBInfo struct {
 
 	// AWSRegion is the AWS region
 	AWSRegion string `json:"awsRegion,omitempty"`
+
+	// AWS Secret Key ID
+	AWSSecretKeyID string `json:"awsSecretKeyId,omitempty"`
+
+	// AWS Secret Access Key
+	AWSSecretAccessKey string `json:"awsSecretAccessKey,omitempty"`
+
+	// AWS Session Token
+	AWSSessionToken string `json:"awsSessionToken,omitempty"`
 }
 
 // LoadConfig loads the service configuration from a file.
