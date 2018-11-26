@@ -11,6 +11,9 @@ type SecurityConfig struct {
 	// Path patterns to be ignored by the security chain (regexp).
 	IgnorePatterns []string `json:"ignorePatterns,omitempty"`
 
+	// Ignore HTTP methods
+	IgnoreHTTPMethods []string `json:"ignoreHttpMethods,omitempty"`
+
 	// KeysDir is the loacation of the directory holding the private-public key pairs.
 	KeysDir string `json:"keysDir"`
 
