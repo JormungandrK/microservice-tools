@@ -113,4 +113,4 @@ func loadGatewaySettings() (string, string) {
 
 ## Contributing
 
-For contributing to this repository or its documentation, see the [Contributing guidelines (CONTRIBUTING.md).
+For contributing to this repository or its documentation, see the [Contributing guidelines](CONTRIBUTING.md).
