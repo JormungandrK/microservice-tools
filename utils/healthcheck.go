@@ -14,14 +14,12 @@ func NewCheckMiddleware(healthcheckEndpoint string) goa.Middleware {
 			
 			//healthcheck endpoint
 			if (req.URL.Path == healthcheckEndpoint) {
-			// fmt.Println("Some text")
-			rw.Write([]byte("OK"))	
-			rw.Header().Set("Content-Type", "application/text")
-			rw.WriteHeader(200)			
+				rw.Header().Set("Content-Type", "application/text")
+				rw.Write([]byte("OK"))	
+				rw.WriteHeader(200)			
 			}
-			return h(ctx, rw, req)
-
-			//version endpoint
+			// return h(ctx, rw, req)
+			return nil
+			}
 		}
-	}
-}	
+	}	

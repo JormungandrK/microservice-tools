@@ -26,6 +26,8 @@ type ServiceConfig struct {
 	// ContainerManager is the platform for managing containerized services
 	// Can be swarm or kubernetes
 	ContainerManager string `json:"containerManager,omitempty"`
+	//Version is version of the service
+	Version string `json:"version"`
 }
 
 // DBConfig holds the database configuration parameters.
