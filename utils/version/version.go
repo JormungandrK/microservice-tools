@@ -27,11 +27,13 @@ func NewVersionMiddleware(version, versionEndpoint string) goa.Middleware {
 			//endpoint that returns the microservice version
 			if (req.URL.Path == versionEndpoint) {
 				rw.Header().Set("Content-Type", "application/json")
-				rw.WriteHeader(200)	
 				rw.Write(js)		
-			}
-			// return h(ctx, rw, req)
-			return nil
+				rw.WriteHeader(200)	
+
+				return nil
+				}
+
+			return h(ctx, rw, req)
 			}
 		}
 	}
