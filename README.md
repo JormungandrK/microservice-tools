@@ -111,6 +111,33 @@ func loadGatewaySettings() (string, string) {
 }
 ```
 
+## Healthcheck
+To add healthcheck to your microservice you need to mount the healtcheck middleware in the microservice ```main``` file:
+```
+service.Use(healthcheck.NewCheckMiddleware("/healthcheck"))
+``` 
+
+To test it out, build the microservice locally and do ```curl http://localhost:8080/healtcheck```
+
+It should return ```OK```.
+
+
+## Version endpoint
+To add version endpoint to your microservice, first you need to add the version of the microservice into configuration JSON file, for example:
+```
+{
+    "version": "v1.0.0"
+}
+```
+Next, mount the version endpoint middleware in the microservice ```main``` file:
+```
+service.Use(version.NewVersionMiddleware(cfg.Version, "/version"))
+```
+To test it out, build the microservice locally and do ```curl http://localhost:8080/version```
+
+It should return the microservice version.
+
+
 ## Contributing
 
 For contributing to this repository or its documentation, see the [Contributing guidelines](CONTRIBUTING.md).

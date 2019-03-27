@@ -6,7 +6,7 @@ import (
 		"encoding/json"
 
 		"github.com/goadesign/goa"
-	)
+)
 
 type Read struct {
 	Version string
@@ -23,18 +23,15 @@ func NewVersionMiddleware(version, versionEndpoint string) goa.Middleware {
 				http.Error(rw, err.Error(), http.StatusInternalServerError)
 				return err
 			}	
-
-			//endpoint that returns the microservice version
+			// Endpoint that returns the microservice version
 			if (req.URL.Path == versionEndpoint) {
-				rw.Header().Set("Content-Type", "application/json")
-				rw.Write(js)		
-				rw.WriteHeader(200)	
-
-				return nil
-				}
-
-			return h(ctx, rw, req)
+					rw.Header().Set("Content-Type", "application/json")
+					rw.Write(js)		
+					rw.WriteHeader(200)	
+					return nil
 			}
+			return h(ctx, rw, req)
 		}
 	}
+}
 	
