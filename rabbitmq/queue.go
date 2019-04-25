@@ -40,7 +40,7 @@ func (channel *AMQPChannel) Receive(name string) (<-chan amqp.Delivery, error) {
 		nil,   // arguments
 	)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	err = channel.Qos(
@@ -49,7 +49,7 @@ func (channel *AMQPChannel) Receive(name string) (<-chan amqp.Delivery, error) {
 		false, // global
 	)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	msgs, err := channel.Consume(
